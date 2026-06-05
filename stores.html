@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STORES // IZUKI</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { background-color: #000; color: #fff; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
+        
+        .stores-container { padding: 150px 40px 100px; max-width: 1200px; margin: 0 auto; }
+        .store-header { font-size: 3rem; font-weight: bold; margin-bottom: 60px; text-transform: uppercase; letter-spacing: -2px; border-bottom: 1px solid #222; padding-bottom: 20px; }
+        .store-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 80px; }
+        .store-item { border-left: 2px solid #fff; padding-left: 30px; }
+        .city { font-size: 1.5rem; text-transform: uppercase; margin-bottom: 15px; font-weight: bold; }
+        .address { font-size: 0.9rem; color: #777; line-height: 1.6; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
+        
+        /* Cải tiến nút link cho Brutalist style */
+        .store-link { 
+            display: inline-block; 
+            color: #fff; 
+            font-size: 0.8rem; 
+            text-decoration: none; 
+            border: 1px solid #fff; 
+            padding: 8px 15px;
+            transition: all 0.3s ease;
+        }
+        .store-link:hover { background-color: #fff; color: #000; }
+
+        @media (max-width: 768px) { .store-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-left"><a href="index.html" class="footer-link">← HOME</a></div>
+        <div class="nav-center"><a href="index.html" class="logo-izuki-3d">IZUKI</a></div>
+        <div class="nav-right"><div>STORES</div></div>
+    </nav>
+
+    <main class="stores-container">
+        <div class="store-header">GLOBAL LOCATIONS</div>
+        
+        <div class="store-grid">
+            <div class="store-item">
+                <div class="city">HO CHI MINH</div>
+                <div class="address">
+                    123 DONG KHOI STREET, DISTRICT 1<br>
+                    OPENING HOURS: 10:00 - 21:00<br>
+                    PHONE: +84 28 0000 0000
+                </div>
+                <a href="https://www.google.com/maps/search/?api=1&query=123+Dong+Khoi+District+1+Ho+Chi+Minh" target="_blank" class="store-link">GET DIRECTIONS</a>
+            </div>
+
+            <div class="store-item">
+                <div class="city">HANOI</div>
+                <div class="address">
+                    45 TRANG TIEN STREET, HOAN KIEM<br>
+                    OPENING HOURS: 10:00 - 21:00<br>
+                    PHONE: +84 24 0000 0000
+                </div>
+                <a href="https://www.google.com/maps/search/?api=1&query=45+Trang+Tien+Hoan+Kiem+Hanoi" target="_blank" class="store-link">GET DIRECTIONS</a>
+            </div>
+
+            <div class="store-item">
+                <div class="city">PARIS</div>
+                <div class="address">
+                    18 RUE SAINT-HONORÉ, 75001<br>
+                    OPENING HOURS: 11:00 - 19:00<br>
+                    PHONE: +33 1 00 00 00 00
+                </div>
+                <a href="https://www.google.com/maps/search/?api=1&query=18+Rue+Saint-Honore+Paris" target="_blank" class="store-link">GET DIRECTIONS</a>
+            </div>
+
+            <div class="store-item">
+                <div class="city">TOKYO</div>
+                <div class="address">
+                    5-17-1 JINGUMAE, SHIBUYA-KU<br>
+                    OPENING HOURS: 11:00 - 20:00<br>
+                    PHONE: +81 3 0000 0000
+                </div>
+                <a href="https://www.google.com/maps/search/?api=1&query=5-17-1+Jingumae+Shibuya+Tokyo" target="_blank" class="store-link">GET DIRECTIONS</a>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>IZUKI — ALL COLLECTIONS</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Helvetica Neue', Arial, sans-serif;
+            background-color:transparent;
+            color:#ffffff;
+        }
+
+        body{
+            background-color:#000000;
+            padding:100px 40px;
+        }
+
+        a.home-link{
+            color:#666;
+            text-decoration:none;
+            font-size:0.75rem;
+            display:inline-block;
+            margin-bottom:30px;
+            letter-spacing:2px;
+            text-transform:uppercase;
+            transition:.3s;
+        }
+
+        a.home-link:hover{
+            color:#fff;
+        }
+
+        h1{
+            font-size:2rem;
+            letter-spacing:4px;
+            text-transform:uppercase;
+            border-bottom:1px solid #222;
+            padding-bottom:20px;
+            font-weight:500;
+        }
+
+        .collections-grid{
+            display:grid;
+            grid-template-columns:repeat(3,1fr);
+            gap:40px;
+            margin-top:50px;
+        }
+
+        .collection-card{
+            text-decoration:none;
+            display:flex;
+            flex-direction:column;
+            border:1px solid #111;
+            background-color:#050505;
+
+            transition:
+            border-color .4s ease,
+            transform .4s ease;
+        }
+
+        .collection-card:hover{
+            border-color:#333;
+            transform:translateY(-6px);
+        }
+
+        .collection-image-box{
+            width:100%;
+            height:500px;
+            overflow:hidden;
+            position:relative;
+            background:#111;
+        }
+
+        .collection-image-box img{
+            width:100%;
+            height:100%;
+            object-fit:cover;
+
+            transition:
+            transform .7s ease,
+            opacity .7s ease;
+        }
+
+        .collection-card:hover img{
+            transform:scale(1.05);
+            opacity:.85;
+        }
+
+        .collection-info{
+            padding:25px 20px;
+            border-top:1px solid #111;
+        }
+
+        .collection-name{
+            font-size:0.9rem;
+            font-weight:600;
+            text-transform:uppercase;
+            letter-spacing:1.5px;
+            margin-bottom:5px;
+        }
+
+        .collection-season{
+            font-size:0.7rem;
+            color:#555;
+            text-transform:uppercase;
+            letter-spacing:1px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <a href="index.html" class="home-link">
+        ← HOME
+    </a>
+
+    <h1>
+        CAMPAIGNS & COLLECTIONS
+    </h1>
+
+    <div class="collections-grid">
+
+        <a href="collection-void.html" class="collection-card">
+
+            <div class="collection-image-box">
+
+                <img src="image/void-cover.jpg">
+
+            </div>
+
+            <div class="collection-info">
+
+                <h2 class="collection-name">
+                    VOID
+                </h2>
+
+                <p class="collection-season">
+                    SPRING / SUMMER 2026
+                </p>
+
+            </div>
+
+        </a>
+
+        <a href="collection-structure.html" class="collection-card">
+
+            <div class="collection-image-box">
+
+                <img src="image/structure-cover.jpg">
+
+            </div>
+
+            <div class="collection-info">
+
+                <h2 class="collection-name">
+                    STRUCTURE
+                </h2>
+
+                <p class="collection-season">
+                    AUTUMN / WINTER 2026
+                </p>
+
+            </div>
+
+        </a>
+
+        <a href="collection-residual.html" class="collection-card">
+
+            <div class="collection-image-box">
+
+                <img src="image/residual-cover.jpg">
+
+            </div>
+
+            <div class="collection-info">
+
+                <h2 class="collection-name">
+                    RESIDUAL
+                </h2>
+
+                <p class="collection-season">
+                    ARCHIVE COLLECTION
+                </p>
+
+            </div>
+
+        </a>
+
+    </div>
+
+</body>
+
+</html>

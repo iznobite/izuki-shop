@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>IZUKI // SHOP ALL</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Courier New', Courier, monospace; }
+        body { background: #000; color: #fff; padding: 40px; margin: 0; }
+        
+        .header { border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center; }
+        .header-left a { color: #888; text-decoration: none; font-weight: bold; }
+        .header-left a:hover { color: #fff; }
+        .header-left h1 { margin-top: 15px; letter-spacing: 2px; }
+
+        /* LƯỚI SẢN PHẨM */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .item {
+            border: 1px solid #222;
+            background: #050505;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .item img {
+            width: 100%;
+            height: 300px;
+            object-fit: contain;
+            background: #f0f0f0; /* Nền xám sáng để áo đen nổi bật */
+            border: 1px solid #111;
+            margin-bottom: 15px;
+        }
+
+        .item h3 { font-size: 1.2rem; margin: 0 0 10px 0; text-transform: uppercase; }
+        .item .price { color: #aaa; font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; }
+        .item .category { color: #555; font-size: 0.8rem; text-transform: uppercase; flex-grow: 1; }
+        
+        /* NÚT ADD TO BAG */
+        .add-to-bag-btn {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 12px;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+        .add-to-bag-btn:hover {
+            background: #888;
+        }
+
+        .empty-msg { color: #ff3b30; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-left">
+            <a href="index.html">← BACK TO HOME</a>
+            <h1>ALL PRODUCTS</h1>
+        </div>
+    </div>
+
+    <div class="grid" id="productGrid">
+        </div>
+
+    <script>
+        // 1. Lấy dữ liệu sản phẩm từ Admin
+        const products = JSON.parse(localStorage.getItem('izukiProducts')) || [];
+        const grid = document.getElementById('productGrid');
+
+        // 2. Hàm vẽ sản phẩm ra màn hình
+        if (products.length === 0) {
+            grid.innerHTML = '<p class="empty-msg">KHO HIỆN TẠI ĐANG TRỐNG. VUI LÒNG VÀO TRANG ADMIN ĐỂ THÊM SẢN PHẨM!</p>';
+        } else {
+            products.forEach(p => {
+                const itemHTML = `
+                    <div class="item">
+                        <img src="${p.image}" alt="Hình ảnh ${p.name}">
+                        <h3>${p.name}</h3>
+                        <div class="price">€ ${p.price}</div>
+                        <div class="category">[ ${p.category} / ${p.subCategory} ]</div>
+                        <button class="add-to-bag-btn" onclick="addToBag(${p.id})">+ ADD TO BAG</button>
+                    </div>
+                `;
+                grid.insertAdjacentHTML('beforeend', itemHTML);
+            });
+        }
+
+        // 3. LOGIC GIỎ HÀNG (ADD TO BAG)
+        function addToBag(productId) {
+            // Tìm sản phẩm được bấm
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            // Lấy giỏ hàng hiện tại (nếu chưa có thì tạo mảng rỗng)
+            let cart = JSON.parse(localStorage.getItem('izukiCart')) || [];
+            
+            // Kiểm tra xem sản phẩm đã có trong giỏ chưa
+            const existItem = cart.find(item => item.id === product.id);
+            
+            if (existItem) {
+                existItem.quantity += 1; // Có rồi thì cộng thêm số lượng
+            } else {
+                // Chưa có thì đẩy vào giỏ
+                cart.push({ 
+                    id: product.id, 
+                    name: product.name, 
+                    price: product.price, 
+                    image: product.image, 
+                    quantity: 1 
+                });
+            }
+            
+            // Lưu lại giỏ hàng
+            localStorage.setItem('izukiCart', JSON.stringify(cart));
+            
+            // Kích hoạt sự kiện để trang index.html biết mà mở giỏ hàng trượt ra (nếu có)
+            localStorage.setItem('izukiCart_trigger', Date.now());
+            
+            alert('ĐÃ THÊM [' + product.name + '] VÀO GIỎ HÀNG!');
+        }
+    </script>
+
+</body>
+</html>

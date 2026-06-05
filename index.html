@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IZUKI — 2026 COLLECTION</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.34/dist/lenis.min.js"></script>
+
+    <style>
+        /* --- ĐỊNH DẠNG NỀN ĐEN NGUYÊN BẢN --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: transparent;
+            color: #ffffff;
+        }
+
+        body {
+            background-color: #000000;
+            overflow-x: hidden;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        body.page-fade-out {
+            opacity: 0;
+        }
+
+        /* --- THANH MENU ĐIỀU HƯỚNG TRÊN CÙNG --- */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 25px 40px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            z-index: 100;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+            background-color: #000000;
+            border-bottom: 1px solid #111;
+        }
+
+        .nav-left { display: flex; gap: 30px; }
+        .nav-left div { cursor: pointer; color: #666; transition: color 0.3s; }
+        .nav-left div:hover { color: #fff; }
+
+        .nav-right { display: flex; justify-content: flex-end; gap: 30px; }
+        .nav-right div { cursor: pointer; color: #666; transition: color 0.3s; }
+        .nav-right div:hover { color: #fff; }
+
+        .nav-center { perspective: 1000px; }
+        .logo-izuki-3d {
+            font-family: 'Courier New', Courier, monospace;
+            font-style: italic;
+            font-size: 1.6rem;
+            letter-spacing: -1px;
+            font-weight: bold;
+            position: relative;
+            transform-style: preserve-3d;
+            display: inline-block;
+            text-decoration: none;
+            cursor: pointer;
+            text-shadow: 0 1px 0 #333, 0 3px 0 #222, 0 5px 0 #111, 0 6px 10px rgba(0, 0, 0, 0.8);
+            animation: rotate3DLogo 8s linear infinite; 
+        }
+        @keyframes rotate3DLogo {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        /* --- MINIMAL SEARCH DRAWER --- */
+        .search-drawer {
+            position: fixed;
+            top: 75px; 
+            left: 0;
+            width: 100%;
+            background-color: #000000;
+            border-bottom: 1px solid #111;
+            z-index: 99;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .search-drawer.active { max-height: 500px; }
+        .search-wrapper { padding: 30px 40px; display: flex; flex-direction: column; gap: 20px; }
+        .search-field-row { display: flex; align-items: center; position: relative; }
+
+        #searchInput {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #222;
+            color: #fff;
+            font-size: 1.1rem;
+            font-family: 'Courier New', Courier, monospace;
+            text-transform: uppercase;
+            outline: none;
+            padding-bottom: 10px;
+            letter-spacing: 2px;
+            transition: border-color 0.3s;
+        }
+        #searchInput:focus { border-color: #555; }
+
+        .clear-search-x {
+            position: absolute; right: 0; top: 0; cursor: pointer; color: #444; font-size: 0.8rem; letter-spacing: 1px; transition: color 0.3s; text-transform: uppercase;
+        }
+        .clear-search-x:hover { color: #fff; }
+
+        .search-results-inline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; margin-top: 10px; }
+        .inline-result-item { text-decoration: none; display: flex; align-items: center; gap: 15px; background: #050505; border: 1px solid #111; padding: 10px; transition: 0.3s; }
+        .inline-result-item:hover { border-color: #333; background: #0a0a0a; }
+        .inline-result-item img { width: 50px; height: 50px; object-fit: cover; border: 1px solid #222; }
+        .inline-item-meta { display: flex; flex-direction: column; gap: 4px; }
+        .inline-item-name { font-size: 0.7rem; letter-spacing: 1px; text-transform: uppercase; color: #fff; font-weight: 600; }
+        .inline-item-price { font-size: 0.65rem; color: #555; }
+        .search-status-text { font-size: 0.7rem; letter-spacing: 1.5px; color: #333; text-transform: uppercase; }
+
+        /* --- ACCOUNT DRAWER & CART DRAWER --- */
+        .account-drawer, .cart-drawer {
+            position: fixed;
+            top: 0;
+            right: -400px; 
+            width: 400px;
+            height: 100vh;
+            background-color: #000000;
+            border-left: 1px solid #111111;
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 9999;
+            transition: right 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .account-drawer.active, .cart-drawer.active { right: 0; }
+
+        .account-top-control, .cart-top-control {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #111;
+            padding-bottom: 15px;
+            margin-bottom: 40px;
+        }
+
+        .account-title, .cart-title { font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; }
+        .close-account-btn, .close-cart-btn { font-size: 0.75rem; letter-spacing: 1.5px; color: #666; cursor: pointer; text-transform: uppercase; transition: color 0.3s; }
+        .close-account-btn:hover, .close-cart-btn:hover { color: #fff; }
+
+        .account-form { display: flex; flex-direction: column; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        
+        .account-form input, .checkout-form input {
+            background: #050505;
+            border: 1px solid #222;
+            color: #fff;
+            padding: 14px;
+            font-size: 0.8rem;
+            font-family: 'Courier New', Courier, monospace;
+            outline: none;
+            letter-spacing: 1px;
+            transition: border-color 0.3s;
+            width: 100%;
+        }
+        .account-form input:focus, .checkout-form input:focus { border-color: #555; }
+
+        .form-links { display: flex; justify-content: space-between; font-size: 0.7rem; letter-spacing: 1px; text-transform: uppercase; }
+        .form-links a { color: #555; text-decoration: none; transition: color 0.3s; }
+        .form-links a:hover { color: #fff; }
+
+        .account-btn {
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 15px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+        .account-btn:hover { background: #888; }
+
+        .switch-form-text { text-align: center; font-size: 0.7rem; letter-spacing: 1px; color: #444; text-transform: uppercase; margin-top: 15px; }
+        .switch-form-text span { color: #fff; cursor: pointer; text-decoration: underline; }
+
+        .account-msg { font-size: 0.7rem; font-family: 'Courier New', Courier, monospace; letter-spacing: 1px; text-transform: uppercase; display: none; }
+        .account-msg.error { color: #ff3b30; }
+        .account-msg.success { color: #4cd964; }
+
+        .user-logged-box { display: flex; flex-direction: column; gap: 20px; }
+        .user-info-text { font-family: 'Courier New', Courier, monospace; font-size: 0.8rem; letter-spacing: 1px; line-height: 1.6; color: #aaa; }
+        .user-info-text strong { color: #fff; }
+
+        .account-bottom-admin { border-top: 1px solid #111; padding-top: 20px; text-align: center; }
+        .admin-portal-link { font-size: 0.7rem; letter-spacing: 2px; color: #333; text-decoration: none; text-transform: uppercase; font-weight: bold; transition: color 0.3s, letter-spacing 0.3s; }
+        .admin-portal-link:hover { color: #ff3b30; letter-spacing: 3px; }
+
+        /* --- CART ITEMS LAYOUT --- */
+        .cart-items-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .cart-item {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            border-bottom: 1px solid #111;
+            padding-bottom: 15px;
+        }
+        .cart-item img { width: 70px; height: 70px; object-fit: cover; border: 1px solid #222; }
+        .cart-item-info { flex-grow: 1; display: flex; flex-direction: column; gap: 4px; }
+        .cart-item-name { font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; font-weight: bold; }
+        .cart-item-price { font-size: 0.7rem; color: #777; font-family: 'Courier New', Courier, monospace; }
+        .cart-item-qty-row { display: flex; align-items: center; gap: 10px; margin-top: 5px; }
+        .qty-btn { background: #050505; border: 1px solid #222; color: #fff; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; cursor: pointer; transition: 0.3s; }
+        .qty-btn:hover { background: #fff; color: #000; }
+        .qty-num { font-size: 0.75rem; font-family: 'Courier New', Courier, monospace; }
+        .cart-bottom-checkout { border-top: 1px solid #111; padding-top: 20px; }
+        .cart-total-row { display: flex; justify-content: space-between; font-size: 0.8rem; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 15px; }
+        .cart-total-price { font-weight: bold; font-family: 'Courier New', Courier, monospace; }
+
+        /* --- STYLING CHO CHECKOUT FORM MỚI --- */
+        .checkout-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .checkout-back-btn {
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            color: #666;
+            cursor: pointer;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            display: inline-block;
+            transition: color 0.3s;
+        }
+        .checkout-back-btn:hover { color: #fff; }
+
+        /* --- TOÀN BỘ KHÔNG GIAN HIỂN THỊ VIDEO NGUYÊN BẢN --- */
+        .main-showcase { width: 100%; background-color: #000000; padding-top: 76px; transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
+        body.search-open .main-showcase { transform: translateY(120px); }
+
+        .video-block { position: relative; cursor: pointer; overflow: hidden; }
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.45); z-index: 2; transition: background-color 0.5s ease; }
+
+        video { width: 100%; height: 100%; object-fit: cover; opacity: 0.35; filter: grayscale(1); transition: opacity 0.6s ease, filter 0.6s ease, transform 0.8s ease; }
+        video::-webkit-media-controls-picture-in-picture-button { display: none !important; }
+
+        .title-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 3; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 5px; font-weight: 500; opacity: 0.4; transition: opacity 0.4s ease, letter-spacing 0.4s ease; }
+
+        .runway-full { width: 100%; height: 65vh; border-bottom: 1px solid #111; }
+        .split-row { width: 100%; height: 70vh; display: flex; border-bottom: 1px solid #111; }
+        .split-cell { width: 50%; height: 100%; }
+        .split-cell:first-child { border-right: 1px solid #111; }
+
+        .video-block:hover video { opacity: 1; filter: grayscale(0.1); transform: scale(1.02); }
+        .video-block:hover .overlay { background-color: rgba(0, 0, 0, 0.1); }
+        .video-block:hover .title-text { opacity: 1; letter-spacing: 7px; }
+
+        footer { width: 100%; padding: 60px 40px; background-color: #000000; display: flex; justify-content: center; border-top: 1px solid #111; }
+        .footer-menu { display: flex; gap: 25px; flex-wrap: wrap; }
+        .footer-link { font-size: 0.72rem; text-transform: uppercase; color: #777; text-decoration: none; letter-spacing: 1.5px; transition: color 0.3s; }
+        .footer-link:hover { color: #fff; }
+
+        /* --- SIDEBAR MENU CAO CẤP PHÂN CẤP --- */
+        .izuki-sidebar { width: 380px; height: 100vh; background-color: #000000; border-right: 1px solid #111111; padding: 50px 40px; display: flex; flex-direction: column; justify-content: space-between; position: fixed; top: 0; left: -380px; z-index: 9999; transition: left 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
+        .izuki-sidebar.active { left: 0; }
+
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 9998; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
+        .sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .menu-top-control { display: flex; gap: 40px; }
+        .control-btn { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; letter-spacing: 2px; font-weight: 600; text-transform: uppercase; cursor: pointer; color: #666; transition: color 0.3s; }
+        .control-btn:hover { color: #fff; }
+        .icon-close::before { content: "✕"; font-size: 10px; }
+        .icon-search::before { content: "🔍"; font-size: 10px; }
+
+        .menu-main-nav { display: flex; flex-direction: column; gap: 25px; margin-top: -10px; }
+        .menu-item-wrapper { display: flex; flex-direction: column; }
+        .nav-parent-btn { color: #ffffff; font-size: 1.1rem; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: color 0.3s; display: flex; justify-content: space-between; align-items: center; padding: 5px 0; }
+        .nav-parent-btn:hover { color: #888; }
+        .nav-parent-btn::after { content: "+"; font-size: 0.9rem; color: #444; transition: transform 0.3s ease; }
+        .menu-item-wrapper.open .nav-parent-btn::after { content: "−"; transform: rotate(180deg); }
+
+        .sub-menu-list { max-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 12px; padding-left: 15px; transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1), margin 0.4s; }
+        .menu-item-wrapper.open .sub-menu-list { max-height: 300px; margin-top: 15px; margin-bottom: 10px; }
+        .sub-nav-link { color: #666666; text-decoration: none; font-size: 0.85rem; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500; transition: all 0.3s ease; width: fit-content; }
+        .sub-nav-link:hover { color: #ffffff; padding-left: 5px; }
+        .nav-single-link { color: #ffffff; text-decoration: none; font-size: 1.1rem; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; padding: 5px 0; transition: color 0.3s; }
+        .nav-single-link:hover { color: #888; }
+        .menu-bottom-meta { display: flex; flex-direction: column; gap: 16px; }
+        .meta-link { color: #ffffff; text-decoration: none; font-size: 0.75rem; letter-spacing: 2px; font-weight: bold; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="sidebar-menu izuki-sidebar" id="sidebarMenu">
+        <div class="menu-top-control">
+            <div class="control-btn" id="closeMenuBtn"><span class="icon-close"></span> CLOSE</div>
+            <div class="control-btn" id="sidebarSearchBtn"><span class="icon-search"></span> SEARCH</div>
+        </div>
+
+        <div class="menu-main-nav">
+            <div class="menu-item-wrapper" id="collectionsMenuWrapper">
+                <div class="nav-parent-btn" id="collectionsParentBtn">COLLECTIONS</div>
+                <div class="sub-menu-list">
+                     <a href="collections.html" class="sub-nav-link multi-page-link">ALL COLLECTIONS</a>
+                     <a href="collection-void.html" class="sub-nav-link multi-page-link">VOID (SPRING/SUMMER)</a>
+                     <a href="collection-structure.html" class="sub-nav-link multi-page-link">STRUCTURE (AUTUMN/WINTER)</a>
+                     <a href="collection-residual.html" class="sub-nav-link multi-page-link">RESIDUAL (ARCHIVE)</a>
+                </div>
+            </div>
+
+            <a href="shop.html" class="nav-single-link multi-page-link">SHOP ALL</a>
+
+            <div class="menu-item-wrapper" id="bagsMenuWrapper">
+                <div class="nav-parent-btn" id="bagsParentBtn">BAGS</div>
+                <div class="sub-menu-list">
+                    <a href="bags-all.html" class="sub-nav-link multi-page-link">ALL BAGS</a>
+                    <a href="bags-backpacks.html" class="sub-nav-link multi-page-link">BACKPACKS</a>
+                    <a href="bags-shoulder.html" class="sub-nav-link multi-page-link">SHOULDER BAGS</a>
+                    <a href="bags-tote.html" class="sub-nav-link multi-page-link">TOTE BAGS</a>
+                </div>
+            </div>
+
+            <div class="menu-item-wrapper" id="shoesMenuWrapper">
+                <div class="nav-parent-btn" id="shoesParentBtn">SHOES</div>
+                <div class="sub-menu-list">
+                    <a href="shoes-all.html" class="sub-nav-link multi-page-link">ALL FOOTWEAR</a>
+                    <a href="shoes-formal.html" class="sub-nav-link multi-page-link">FORMAL & BOOTS</a>
+                    <a href="shoes-sneakers.html" class="sub-nav-link multi-page-link">ENGINEERED SNEAKERS</a>
+                </div>
+            </div>
+
+            <a href="stores.html" class="nav-single-link multi-page-link">STORES</a>
+        </div>
+
+        <div class="menu-bottom-meta">
+            <a href="#" class="meta-link">WISHLIST [ 0 ]</a>
+            <a href="#" class="meta-link">ITALY / EUR</a>
+        </div>
+    </div>
+
+    <nav>
+        <div class="nav-left">
+            <div id="openMenuBtn">☰ Menu</div>
+            <div id="navSearchBtn">🔍 Search</div>
+        </div>
+        <div class="nav-center">
+            <a href="index.html" class="logo-izuki-3d">IZUKI</a>
+        </div>
+        <div class="nav-right">
+            <div id="navAccountBtn">Account</div>
+            <div id="navCartBtn" style="cursor: pointer;">Bag [ <span id="navCartCount">0</span> ]</div>
+        </div>
+    </nav>
+
+    <div class="search-drawer" id="searchDrawer">
+        <div class="search-wrapper">
+            <div class="search-field-row">
+                <input type="text" id="searchInput" placeholder="Type to search..." autocomplete="off">
+                <div class="clear-search-x" id="closeSearchX">Close</div>
+            </div>
+            <div id="searchStatus" class="search-status-text"></div>
+            <div class="search-results-inline" id="searchResults"></div>
+        </div>
+    </div>
+
+    <div class="account-drawer" id="accountDrawer">
+        <div id="accountDrawerContent"></div>
+        <div class="account-bottom-admin">
+            <a href="login.html" class="admin-portal-link multi-page-link">// CONTROL CENTER ACCESS</a>
+        </div>
+    </div>
+
+    <div class="cart-drawer" id="cartDrawer">
+        <div class="cart-top-control">
+            <div class="cart-title" id="cartDrawerTitle">YOUR BAG</div>
+            <div class="close-cart-btn" id="closeCartBtn">✕ Close</div>
+        </div>
+        
+        <div class="cart-items-container" id="cartItemsContainer"></div>
+        
+        <div class="cart-items-container" id="checkoutFormContainer" style="display: none;">
+            <span class="checkout-back-btn" onclick="backToCart()">← Quay lại giỏ hàng</span>
+            <div class="checkout-form">
+                <div class="form-group"><input type="text" id="cusName" placeholder="HỌ VÀ TÊN" autocomplete="off"></div>
+                <div class="form-group"><input type="text" id="cusPhone" placeholder="SỐ ĐIỆN THOẠI" autocomplete="off"></div>
+                <div class="form-group"><input type="text" id="cusAddress" placeholder="ĐỊA CHỈ GIAO HÀNG" autocomplete="off"></div>
+            </div>
+        </div>
+
+        <div class="cart-bottom-checkout">
+            <div class="cart-total-row">
+                <span>Total</span>
+                <span class="cart-total-price" id="cartTotalPrice">€ 0.00</span>
+            </div>
+            <button class="account-btn" id="checkoutMainBtn" style="width: 100%; margin-top: 0;" onclick="handleCheckoutStep()">
+                PROCEED TO CHECKOUT
+            </button>
+        </div>
+    </div>
+
+    <main class="main-showcase">
+        <a href="collections.html" class="video-block runway-full multi-page-link">
+            <div class="overlay"></div>
+            <video loop muted playsinline disablePictureInPicture controlsList="nodownload noplaybackrate">
+                <source src="videos/runway.mp4" type="video/mp4">
+            </video>
+            <div class="title-text">Runway</div>
+        </a>
+
+        <div class="split-row">
+            <a href="bags-all.html" class="video-block split-cell multi-page-link">
+                <div class="overlay"></div>
+                <video loop muted playsinline disablePictureInPicture controlsList="nodownload noplaybackrate">
+                    <source src="videos/bag.mp4" type="video/mp4">
+                </video>
+                <div class="title-text">Bags</div>
+            </a>
+            
+            <a href="shoes-all.html" class="video-block split-cell multi-page-link">
+                <div class="overlay"></div>
+                <video loop muted playsinline disablePictureInPicture controlsList="nodownload noplaybackrate">
+                    <source src="videos/shoes.mp4" type="video/mp4">
+                </video>
+                <div class="title-text">Shoes</div>
+            </a>
+         </div>
+    </main>
+
+    <footer>
+        <div class="footer-menu">
+            <a href="#" class="footer-link">NEWSLETTER</a>
+            <a href="#" class="footer-link">CUSTOMER CARE</a>
+            <a href="#" class="footer-link">SOCIAL</a>
+        </div>
+    </footer>
+
+    <script src="js/products.js"></script>
+
+    <script>
+        const lenis = new Lenis();
+        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+        requestAnimationFrame(raf);
+
+        // Video blocks play/pause
+        const videoBlocks = document.querySelectorAll('.video-block');
+        videoBlocks.forEach(block => {
+            const video = block.querySelector('video');
+            block.addEventListener('mouseenter', () => {
+                video.play().catch(err => console.log(err));
+            });
+            block.addEventListener('mouseleave', () => {
+                video.pause();
+                video.currentTime = 0; 
+            });
+        });
+
+        // Sidebar Controls
+        const sidebarMenu = document.getElementById('sidebarMenu');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const openMenuBtn = document.getElementById('openMenuBtn');
+        const closeMenuBtn = document.getElementById('closeMenuBtn');
+
+        openMenuBtn.addEventListener('click', () => {
+            closeSearch(); 
+            closeAccount();
+            closeCart();
+            sidebarMenu.classList.add('active');
+            sidebarOverlay.classList.add('active');
+            lenis.stop(); 
+        });
+
+        const closeSidebar = () => {
+            sidebarMenu.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+            lenis.start(); 
+        };
+        closeMenuBtn.addEventListener('click', closeSidebar);
+        sidebarOverlay.addEventListener('click', closeSidebar);
+
+        // Submenus
+        document.getElementById('bagsParentBtn').addEventListener('click', () => document.getElementById('bagsMenuWrapper').classList.toggle('open'));
+        document.getElementById('shoesParentBtn').addEventListener('click', () => document.getElementById('shoesMenuWrapper').classList.toggle('open'));
+        document.getElementById('collectionsParentBtn').addEventListener('click', () => document.getElementById('collectionsMenuWrapper').classList.toggle('open'));
+
+        // Hàm gán hiệu ứng Fade-out mượt mà khi chuyển trang công cộng
+        const applyPageTransition = (links) => {
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'BUTTON' || e.target.classList.contains('qty-btn') || e.target.classList.contains('cart-remove-x')) {
+                        return;
+                    }
+                    e.preventDefault();
+                    const targetUrl = this.getAttribute('href');
+                    closeSidebar();
+                    closeSearch();
+                    closeAccount();
+                    closeCart();
+                    document.body.classList.add('page-fade-out');
+                    setTimeout(() => { window.location.href = targetUrl; }, 500);
+                });
+            });
+        };
+
+        applyPageTransition(document.querySelectorAll('.multi-page-link'));
+
+        // --- LOGIC CHO MINIMAL SEARCH DRAWER ---
+        const searchDrawer = document.getElementById('searchDrawer');
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const searchStatus = document.getElementById('searchStatus');
+        const closeSearchX = document.getElementById('closeSearchX');
+        const navSearchBtn = document.getElementById('navSearchBtn');
+        const sidebarSearchBtn = document.getElementById('sidebarSearchBtn');
+
+        const toggleSearch = () => {
+            if (searchDrawer.classList.contains('active')) {
+                closeSearch();
+            } else {
+                closeSidebar();
+                closeAccount();
+                closeCart();
+                searchDrawer.classList.add('active');
+                document.body.classList.add('search-open');
+                setTimeout(() => searchInput.focus(), 200);
+            }
+        };
+
+        navSearchBtn.addEventListener('click', toggleSearch);
+        sidebarSearchBtn.addEventListener('click', toggleSearch);
+
+        const closeSearch = () => {
+            searchDrawer.classList.remove('active');
+            document.body.classList.remove('search-open');
+            searchInput.value = '';
+            searchResults.innerHTML = '';
+            searchStatus.innerHTML = '';
+        };
+
+        closeSearchX.addEventListener('click', closeSearch);
+
+        // --- LOGIC XỬ LÝ ĐĂNG KÝ / ĐĂNG NHẬP THỰC TẾ ---
+        const accountDrawer = document.getElementById('accountDrawer');
+        const accountDrawerContent = document.getElementById('accountDrawerContent');
+        const navAccountBtn = document.getElementById('navAccountBtn');
+
+        let currentFormState = 'login'; 
+
+        const updateNavbarAccountInfo = () => {
+            const loggedInUser = sessionStorage.getItem('izukiLoggedInUser');
+            if (loggedInUser) {
+                navAccountBtn.innerText = `HI, ${loggedInUser.split('@')[0].toUpperCase()}`;
+            } else {
+                navAccountBtn.innerText = "Account";
+            }
+        };
+
+        const renderAccountDrawer = () => {
+            const loggedInUser = sessionStorage.getItem('izukiLoggedInUser');
+            
+            // Lấy toàn bộ lịch sử đơn hàng từ localStorage
+            const ordersHistory = JSON.parse(localStorage.getItem('izukiOrders')) || [];
+            
+            // Phân loại email hiện tại (Nếu chưa đăng nhập thì là GUEST vãng lai)
+            const currentUserEmail = loggedInUser || 'GUEST';
+            const userOrders = ordersHistory.filter(order => order.customer.email === currentUserEmail);
+
+            // Hàm sinh mã HTML hiển thị danh sách đơn hàng
+            const renderOrdersHTML = () => {
+                if (userOrders.length === 0) {
+                    return `<p style="font-size: 0.7rem; color: #444; text-transform: uppercase; margin-top: 15px; text-align: center; letter-spacing: 1px;">BẠN CHƯA CÓ ĐƠN HÀNG NÀO.</p>`;
+                }
+                return `
+                    <div style="margin-top: 20px; border-top: 1px solid #111; padding-top: 15px;">
+                        <p style="font-size: 0.7rem; letter-spacing: 1.5px; color: #666; text-transform: uppercase; margin-bottom: 15px; font-weight: bold;">LỊCH SỬ ĐƠN HÀNG (${userOrders.length})</p>
+                        <div style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding-right: 5px;">
+                            ${userOrders.map(order => `
+                                <div style="background: #050505; border: 1px solid #111; padding: 12px; font-family: 'Courier New', Courier, monospace; font-size: 0.7rem;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px; color: #555;">
+                                        <span>ID: ${order.orderId}</span>
+                                        <span>${order.date}</span>
+                                    </div>
+                                    <div style="margin-bottom: 8px; color: #fff; text-transform: uppercase; font-weight: bold;">
+                                        SHIP: ${order.customer.name}
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 4px; border-bottom: 1px solid #111; padding-bottom: 8px; margin-bottom: 8px;">
+                                        ${order.items.map(item => `
+                                            <div style="display: flex; justify-content: space-between; color: #888;">
+                                                <span>• ${item.name.toUpperCase()} (x${item.quantity})</span>
+                                                <span>€ ${(parseFloat(item.price) * item.quantity).toFixed(2)}</span>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 0.75rem; color: #ffffff;">
+                                        <span>TỔNG CỘNG:</span>
+                                        <span>€ ${order.totalPrice}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            };
+            
+            if (loggedInUser) {
+                accountDrawerContent.innerHTML = `
+                    <div class="account-top-control">
+                        <div class="account-title">MY ACCOUNT</div>
+                        <div class="close-account-btn" onclick="closeAccount()">✕ Close</div>
+                    </div>
+                    <div class="user-logged-box">
+                        <p class="user-info-text">WELCOME BACK,<br><strong>${loggedInUser}</strong></p>
+                        <p class="user-info-text" style="color: #444;">BẠN ĐÃ CÓ THỂ TIẾN HÀNH CHỌN SẢN PHẨM VÀ THANH TOÁN ĐƠN HÀNG.</p>
+                        
+                        <!-- Lịch sử mua hàng của User -->
+                        ${renderOrdersHTML()}
+
+                        <button class="account-btn" onclick="handleLogout()" style="margin-top: 10px;">ĐĂNG XUẤT TÀI KHOẢN</button>
+                    </div>
+                `;
+                return;
+            }
+
+            if (currentFormState === 'login') {
+                accountDrawerContent.innerHTML = `
+                    <div class="account-top-control">
+                        <div class="account-title">Đăng nhập</div>
+                        <div class="close-account-btn" onclick="closeAccount()">✕ Close</div>
+                    </div>
+                    <div class="account-form">
+                        <div class="account-msg error" id="authErrorMsg"></div>
+                        <div class="form-group"><input type="text" id="accEmail" placeholder="E-MAIL" autocomplete="off"></div>
+                        <div class="form-group"><input type="password" id="accPassword" placeholder="MẬT KHẨU"></div>
+                        <div class="form-links"><a href="#">Quên mật khẩu?</a></div>
+                        <button class="account-btn" onclick="handleLogin()">Đăng nhập</button>
+                        <div class="switch-form-text">Chưa có tài khoản? <span onclick="switchForm('register')">Đăng ký</span></div>
+                        
+                        <!-- Lịch sử mua hàng ẩn danh cho GUEST -->
+                        ${userOrders.length > 0 ? renderOrdersHTML() : ''}
+                    </div>
+                `;
+            } else if (currentFormState === 'register') {
+                accountDrawerContent.innerHTML = `
+                    <div class="account-top-control">
+                        <div class="account-title">Đăng ký</div>
+                        <div class="close-account-btn" onclick="closeAccount()">✕ Close</div>
+                    </div>
+                    <div class="account-form">
+                        <div class="account-msg error" id="authErrorMsg"></div>
+                        <div class="account-msg success" id="authSuccessMsg"></div>
+                        <div class="form-group"><input type="text" id="regEmail" placeholder="E-MAIL ĐĂNG KÝ" autocomplete="off"></div>
+                        <div class="form-group"><input type="password" id="regPassword" placeholder="MẬT KHẨU MỚI"></div>
+                        <button class="account-btn" onclick="handleRegister()">TẠO TÀI KHOẢN</button>
+                        <div class="switch-form-text">Đã có tài khoản? <span onclick="switchForm('login')">Đăng nhập</span></div>
+                    </div>
+                `;
+            }
+        };
+
+        window.switchForm = (state) => {
+            currentFormState = state;
+            renderAccountDrawer();
+        };
+
+        navAccountBtn.addEventListener('click', () => {
+            closeSidebar();
+            closeSearch();
+            closeCart();
+            renderAccountDrawer();
+            accountDrawer.classList.add('active');
+            sidebarOverlay.classList.add('active');
+            lenis.stop();
+        });
+
+        window.closeAccount = () => {
+            accountDrawer.classList.remove('active');
+            if (!sidebarMenu.classList.contains('active') && !cartDrawer.classList.contains('active')) {
+                sidebarOverlay.classList.remove('active');
+                lenis.start();
+            }
+        };
+
+        window.handleRegister = () => {
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+            const errorMsg = document.getElementById('authErrorMsg');
+            const successMsg = document.getElementById('authSuccessMsg');
+
+            errorMsg.style.display = "none";
+            successMsg.style.display = "none";
+
+            if (email === '' || password === '') {
+                errorMsg.innerText = "VUI LÒNG NHẬP ĐẦY ĐỦ THÔNG TIN.";
+                errorMsg.style.display = "block";
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('izukiUsers')) || [];
+            const isExist = users.find(u => u.email.toUpperCase() === email.toUpperCase());
+            if (isExist) {
+                errorMsg.innerText = "EMAIL NÀY ĐÃ ĐƯỢC ĐĂNG KÝ TRÊN HỆ THỐNG.";
+                errorMsg.style.display = "block";
+                return;
+            }
+
+            users.push({ id: Date.now(), email: email, password: password });
+            localStorage.setItem('izukiUsers', JSON.stringify(users));
+
+            successMsg.innerText = "ĐĂNG KÝ THÀNH CÔNG! ĐANG CHUYỂN HƯỚNG...";
+            successMsg.style.display = "block";
+
+            setTimeout(() => {
+                currentFormState = 'login';
+                renderAccountDrawer();
+            }, 1500);
+        };
+
+        window.handleLogin = () => {
+            const email = document.getElementById('accEmail').value.trim();
+            const password = document.getElementById('accPassword').value.trim();
+            const errorMsg = document.getElementById('authErrorMsg');
+
+            errorMsg.style.display = "none";
+
+            if (email === '' || password === '') {
+                errorMsg.innerText = "VUI LÒNG NHẬP EMAIL VÀ MẬT KHẨU.";
+                errorMsg.style.display = "block";
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('izukiUsers')) || [];
+            const user = users.find(u => u.email.toUpperCase() === email.toUpperCase() && u.password === password);
+
+            if (!user) {
+                errorMsg.innerText = "SAI THÔNG TIN ĐĂNG NHẬP HOẶC MẬT KHẨU.";
+                errorMsg.style.display = "block";
+                return;
+            }
+
+            sessionStorage.setItem('izukiLoggedInUser', user.email);
+            updateNavbarAccountInfo();
+            renderAccountDrawer();
+            setTimeout(() => { closeAccount(); }, 1000);
+        };
+
+        window.handleLogout = () => {
+            sessionStorage.removeItem('izukiLoggedInUser');
+            updateNavbarAccountInfo();
+            currentFormState = 'login';
+            renderAccountDrawer();
+        };
+
+        updateNavbarAccountInfo();
+
+        // --- LOGIC XỬ LÝ GIỎ HÀNG & THÔNG TIN ĐẶT HÀNG ---
+        const cartDrawer = document.getElementById('cartDrawer');
+        const navCartBtn = document.getElementById('navCartBtn');
+        const closeCartBtn = document.getElementById('closeCartBtn');
+        const cartItemsContainer = document.getElementById('cartItemsContainer');
+        const checkoutFormContainer = document.getElementById('checkoutFormContainer');
+        const cartDrawerTitle = document.getElementById('cartDrawerTitle');
+        const checkoutMainBtn = document.getElementById('checkoutMainBtn');
+        const cartTotalPrice = document.getElementById('cartTotalPrice');
+        const navCartCount = document.getElementById('navCartCount');
+
+        let isCheckoutMode = false; // Biến kiểm tra đang xem giỏ hàng hay điền thông tin
+
+        navCartBtn.addEventListener('click', () => {
+            closeSidebar();
+            closeSearch();
+            closeAccount();
+            backToCart(); // Đảm bảo mở ra luôn là giỏ hàng trước
+            renderCart();
+            cartDrawer.classList.add('active');
+            sidebarOverlay.classList.add('active');
+            lenis.stop();
+        });
+
+        const closeCart = () => {
+            cartDrawer.classList.remove('active');
+            if (!sidebarMenu.classList.contains('active') && !accountDrawer.classList.contains('active')) {
+                sidebarOverlay.classList.remove('active');
+                lenis.start();
+            }
+        };
+        closeCartBtn.addEventListener('click', closeCart);
+
+        function getCart() { return JSON.parse(localStorage.getItem('izukiCart')) || []; }
+        function saveCart(cart) { localStorage.setItem('izukiCart', JSON.stringify(cart)); updateNavCartBadge(); }
+
+        function updateNavCartBadge() {
+            const cart = getCart();
+            const totalQty = cart.reduce((acc, item) => acc + item.quantity, 0);
+            if(navCartCount) navCartCount.innerText = totalQty;
+        }
+
+        function renderCart() {
+            const cart = getCart();
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = `<p style="font-size:0.7rem; color:#444; text-transform:uppercase; letter-spacing:1px; margin-top:20px; text-align:center;">Your bag is currently empty.</p>`;
+                cartTotalPrice.innerText = "€ 0.00";
+                checkoutMainBtn.style.display = "none";
+                return;
+            }
+            checkoutMainBtn.style.display = "block";
+            let total = 0;
+            cartItemsContainer.innerHTML = cart.map(item => {
+                total += parseFloat(item.price) * item.quantity;
+                return `
+                    <div class="cart-item" style="position: relative;">
+                        <img src="${item.image}">
+                        <div class="cart-item-info">
+                            <div class="cart-item-name" style="padding-right: 35px;">${item.name}</div>
+                            <div class="cart-item-price">€ ${parseFloat(item.price).toFixed(2)}</div>
+                            <div class="cart-item-qty-row">
+                                <div class="qty-btn" onclick="changeQty(${item.id}, -1)">−</div>
+                                <span class="qty-num">${item.quantity}</span>
+                                <div class="qty-btn" onclick="changeQty(${item.id}, 1)">+</div>
+                            </div>
+                        </div>
+                        <div onclick="removeFromCart(${item.id})" class="cart-remove-x"
+                             style="position: absolute; top: 0; right: 0; font-size: 0.8rem; color: #444; cursor: pointer; transition: color 0.3s; font-family: sans-serif; padding: 2px;"
+                             onmouseover="this.style.color='#ff3b30'" 
+                             onmouseout="this.style.color='#444'">
+                            ✕
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            cartTotalPrice.innerText = `€ ${total.toFixed(2)}`;
+        }
+
+        window.changeQty = (id, delta) => {
+            let cart = getCart();
+            const idx = cart.findIndex(item => item.id === id);
+            if (idx > -1) {
+                cart[idx].quantity += delta;
+                if (cart[idx].quantity <= 0) cart.splice(idx, 1);
+                saveCart(cart);
+                renderCart();
+            }
+        };
+
+        window.removeFromCart = (id) => {
+            let cart = getCart();
+            cart = cart.filter(item => item.id !== id);
+            saveCart(cart);
+            renderCart();
+        };
+
+        // --- CHUYỂN ĐỔI GIAO DIỆN GIỎ HÀNG / ĐIỀN THÔNG TIN ---
+        window.handleCheckoutStep = () => {
+            if (!isCheckoutMode) {
+                // Chuyển sang form nhập thông tin khách hàng
+                isCheckoutMode = true;
+                cartItemsContainer.style.display = "none";
+                checkoutFormContainer.style.display = "block";
+                cartDrawerTitle.innerText = "SHIPPING INFO";
+                checkoutMainBtn.innerText = "CONFIRM ORDER";
+            } else {
+                // Xử lý xác nhận đặt hàng thành công
+                const name = document.getElementById('cusName').value.trim();
+                const phone = document.getElementById('cusPhone').value.trim();
+                const address = document.getElementById('cusAddress').value.trim();
+
+                if (name === "" || phone === "" || address === "") {
+                    alert("VUI LÒNG ĐIỀN ĐẦY ĐỦ THÔNG TIN ĐỂ ĐẶT HÀNG.");
+                    return;
+                }
+
+                // Lấy thông tin giỏ hàng và tính tổng giá
+                const cart = getCart();
+                const total = cart.reduce((acc, item) => acc + parseFloat(item.price) * item.quantity, 0);
+
+                // Khởi tạo đối tượng lưu trữ thông tin đơn hàng mới
+                const newOrder = {
+                    orderId: 'IZK-' + Date.now(),
+                    customer: {
+                        name: name,
+                        phone: phone,
+                        address: address,
+                        email: sessionStorage.getItem('izukiLoggedInUser') || 'GUEST'
+                    },
+                    items: cart,
+                    totalPrice: total.toFixed(2),
+                    date: new Date().toLocaleString('vi-VN')
+                };
+
+                // Push vào hệ thống mảng lịch sử (izukiOrders) trong localStorage
+                let ordersHistory = JSON.parse(localStorage.getItem('izukiOrders')) || [];
+                ordersHistory.push(newOrder);
+                localStorage.setItem('izukiOrders', JSON.stringify(ordersHistory));
+
+                alert(`ĐẶT HÀNG THÀNH CÔNG!\nCảm ơn ${name.toUpperCase()} đã mua sắm tại IZUKI.\nĐơn hàng của bạn đã được ghi nhận vào lịch sử.`);
+                
+                // Reset giỏ hàng và làm sạch form nhập liệu
+                localStorage.removeItem('izukiCart');
+                document.getElementById('cusName').value = "";
+                document.getElementById('cusPhone').value = "";
+                document.getElementById('cusAddress').value = "";
+                
+                updateNavCartBadge();
+                backToCart();
+                closeCart();
+            }
+        };
+
+        window.backToCart = () => {
+            isCheckoutMode = false;
+            cartItemsContainer.style.display = "block";
+            checkoutFormContainer.style.display = "none";
+            cartDrawerTitle.innerText = "YOUR BAG";
+            checkoutMainBtn.innerText = "PROCEED TO CHECKOUT";
+            renderCart();
+        };
+
+        // --- HÀM ADD TO CART TOÀN CỤC CHUẨN ĐỒNG BỘ ---
+        window.addToCartGlobal = (product) => {
+            let cart = getCart();
+            const exist = cart.find(item => item.id === product.id);
+            if (exist) { exist.quantity += 1; } 
+            else { cart.push({ id: product.id, name: product.name, price: product.price, image: product.image, quantity: 1 }); }
+            saveCart(cart);
+            backToCart();
+            
+            // Tự mở giỏ hàng trượt ra
+            cartDrawer.classList.add('active');
+            sidebarOverlay.classList.add('active');
+            lenis.stop();
+        };
+
+        // LẮNG NGHE SỰ KIỆN TỪ FILE GIÀY/TÚI RA NGOÀI ĐỂ TRƯỢT MENU RA
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'izukiCart_trigger') {
+                updateNavCartBadge();
+                backToCart();
+                
+                // Mở nhanh giỏ hàng
+                cartDrawer.classList.add('active');
+                sidebarOverlay.classList.add('active');
+                lenis.stop();
+            }
+        });
+
+        updateNavCartBadge();
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') { closeSearch(); closeAccount(); closeCart(); closeSidebar(); }
+        });
+
+        // Real-time search logic
+        searchInput.addEventListener('input', function() {
+            const keyword = this.value.trim().toUpperCase();
+            if (keyword === '') { searchResults.innerHTML = ''; searchStatus.innerHTML = ''; searchDrawer.style.maxHeight = "120px"; return; }
+
+            const allProducts = JSON.parse(localStorage.getItem('izukiProducts')) || (typeof izukiProducts !== 'undefined' ? izukiProducts : []);
+            const matchedProducts = allProducts.filter(p => p.name.toUpperCase().includes(keyword));
+
+            if (matchedProducts.length === 0) { searchStatus.innerHTML = `No results found for "${keyword}"`; searchResults.innerHTML = ''; searchDrawer.style.maxHeight = "160px"; return; }
+
+            searchStatus.innerHTML = `Results (${matchedProducts.length})`;
+            searchDrawer.style.maxHeight = "500px"; 
+
+            searchResults.innerHTML = '';
+
+            matchedProducts.slice(0, 5).forEach(p => {
+                let targetPage = "index.html"; 
+                if (p.category === "bags") {
+                    if (p.subCategory === "tote") targetPage = "bags-tote.html";
+                    else if (p.subCategory === "backpacks") targetPage = "bags-backpacks.html";
+                    else if (p.subCategory === "shoulder") targetPage = "bags-shoulder.html";
+                    else targetPage = "bags-all.html";
+                } else if (p.category === "collections") {
+                    if (p.subCategory === "void") targetPage = "collection-void.html";
+                    else if (p.subCategory === "structure") targetPage = "collection-structure.html";
+                    else if (p.subCategory === "residual") targetPage = "collection-residual.html";
+                    else targetPage = "collections.html";
+                } else if (p.category === "footwear") {
+                    if (p.subCategory === "formal") targetPage = "shoes-formal.html";
+                    else if (p.subCategory === "sneakers") targetPage = "shoes-sneakers.html";
+                    else targetPage = "shoes-all.html";
+                }
+
+                const resItem = document.createElement('a');
+                resItem.href = targetPage;
+                resItem.className = 'inline-result-item dynamic-search-link';
+                resItem.innerHTML = `
+                    <img src="${p.image}" alt="${p.name}">
+                    <div class="inline-item-meta">
+                        <div class="inline-item-name">${p.name}</div>
+                        <div class="inline-item-price">€${p.price}</div>
+                        <button class="qty-btn" style="width: auto; height: auto; font-size: 0.6rem; padding: 4px 8px; margin-top: 4px; border-color: #333; cursor: pointer;">+ ADD TO BAG</button>
+                    </div>
+                `;
+
+                resItem.querySelector('button').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.addToCartGlobal(p);
+                    closeSearch();
+                });
+
+                searchResults.appendChild(resItem);
+            });
+
+            applyPageTransition(document.querySelectorAll('.dynamic-search-link'));
+        });
+    </script>
+</body>
+</html>

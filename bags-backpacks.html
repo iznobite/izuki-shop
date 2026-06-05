@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>BACKPACKS | IZUKI</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Helvetica Neue', Arial, sans-serif;
+            background:transparent;
+            color:#fff;
+        }
+
+        body{
+            background:#000;
+            padding:100px 40px;
+        }
+
+        .back-link{
+            color:#666;
+            text-decoration:none;
+            font-size:0.75rem;
+            display:inline-block;
+            margin-bottom:30px;
+            letter-spacing:2px;
+            text-transform:uppercase;
+            transition:0.3s;
+        }
+
+        .back-link:hover{
+            color:#fff;
+        }
+
+        h1{
+            font-size:2rem;
+            letter-spacing:4px;
+            text-transform:uppercase;
+            border-bottom:1px solid #222;
+            padding-bottom:20px;
+        }
+
+        .grid{
+            display:grid;
+            grid-template-columns:repeat(3,1fr);
+            gap:30px;
+            margin-top:40px;
+        }
+
+        .item{
+            background:#050505;
+            border:1px solid #111;
+
+            display:flex;
+            flex-direction:column;
+
+            transition:0.4s;
+            position:relative;
+
+            overflow:hidden;
+        }
+
+        .item:hover{
+            border-color:#fff;
+            transform:translateY(-5px);
+        }
+
+        .item-image{
+            width:100%;
+            height:350px;
+            overflow:hidden;
+            background:#111;
+        }
+
+        .item-image img{
+            width:100%;
+            height:100%;
+            object-fit:cover;
+
+            transition:0.6s;
+        }
+
+        .item:hover img{
+            transform:scale(1.05);
+            opacity:0.9;
+        }
+
+        .item-content{
+            padding:25px 20px;
+        }
+
+        .item-meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 10px;
+            gap: 15px;
+        }
+
+        .item-info-left {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex-grow: 1;
+        }
+
+        .item-badge{
+            position:absolute;
+            top:20px;
+            left:20px;
+
+            font-size:0.65rem;
+            letter-spacing:1px;
+            color:#888;
+
+            border:1px solid #222;
+            padding:4px 8px;
+
+            text-transform:uppercase;
+
+            z-index:2;
+        }
+
+        .item-name{
+            font-size:0.85rem;
+            letter-spacing:1px;
+            text-transform:uppercase;
+            font-weight:600;
+            line-height:1.4;
+        }
+
+        .item-price{
+            color:#aaa;
+            margin-top:15px;
+            font-size:0.85rem;
+            font-weight:bold;
+        }
+
+        .inline-add-btn {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #ffffff;
+            background: transparent;
+            border: 1px solid #333333;
+            cursor: pointer;
+            text-transform: uppercase;
+            padding: 8px 16px;
+            letter-spacing: 1px;
+            white-space: nowrap;
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .inline-add-btn:hover {
+            background: #ffffff;
+            color: #000000;
+            border-color: #ffffff;
+        }
+
+        .empty-text{
+            color:#666;
+            font-style:italic;
+            letter-spacing:2px;
+            margin-top:20px;
+            text-transform:uppercase;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <a href="index.html" class="back-link">
+        ← HOME
+    </a>
+
+    <h1>BACKPACKS COLLECTION</h1>
+
+    <div class="grid" id="backpackGrid"></div>
+
+    <script src="js/products.js"></script>
+
+    <script>
+
+        const grid = document.getElementById('backpackGrid');
+        const productsData = JSON.parse(localStorage.getItem('izukiProducts')) || (typeof izukiProducts !== 'undefined' ? izukiProducts : []);
+
+        // Lọc đúng backpacks
+        const backpacks = productsData.filter(product =>
+            product.category === "bags" && product.subCategory === "backpacks"
+        );
+
+        // Nếu không có sản phẩm
+        if(backpacks.length === 0){
+
+            grid.innerHTML = `
+                <p class="empty-text">
+                    NO BACKPACKS AVAILABLE AT THE MOMENT.
+                </p>
+            `;
+
+        } else {
+
+            // Render sản phẩm
+            backpacks.forEach((bag, index) => {
+                if (!bag.id) bag.id = index + 2000;
+
+                const badgeHTML =
+                    bag.badge
+                    ? `<div class="item-badge">${bag.badge}</div>`
+                    : '';
+
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'item';
+
+                itemDiv.innerHTML = `
+                    ${badgeHTML}
+                    <div class="item-image">
+                        <img src="${bag.image}">
+                    </div>
+                    <div class="item-content">
+                        <div class="item-meta-row">
+                            <div class="item-info-left">
+                                <div class="item-name">${bag.name}</div>
+                                <div class="item-price">€ ${bag.price}</div>
+                            </div>
+                            <button class="inline-add-btn">ADD TO BAG</button>
+                        </div>
+                    </div>
+                `;
+
+                itemDiv.querySelector('.inline-add-btn').addEventListener('click', () => {
+                    if (window.parent && window.parent.addToCartGlobal) {
+                        window.parent.addToCartGlobal(bag);
+                    } else if (typeof addToCartGlobal === 'function') {
+                        addToCartGlobal(bag);
+                    } else {
+                        let cart = JSON.parse(localStorage.getItem('izukiCart')) || [];
+                        const exist = cart.find(item => item.id === bag.id);
+                        if (exist) exist.quantity += 1;
+                        else cart.push({ id: bag.id, name: bag.name, price: bag.price, image: bag.image, quantity: 1 });
+                        localStorage.setItem('izukiCart', JSON.stringify(cart));
+                    }
+                });
+
+                grid.appendChild(itemDiv);
+            });
+
+        }
+
+    </script>
+
+</body>
+
+</html>

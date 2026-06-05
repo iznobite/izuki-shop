@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>IZUKI // ADMIN PANEL</title>
+
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 40px;
+        }
+
+        .admin-nav {
+            border-bottom: 1px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+            border: 1px solid #222;
+            padding: 20px;
+        }
+
+        input, select {
+            background: #050505;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 12px;
+            text-transform: uppercase;
+        }
+
+        button {
+            background: #fff;
+            color: #000;
+            padding: 12px 20px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        button:hover { background: #888; }
+
+        h2 {
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            margin-top: 50px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 10px;
+            color: #888;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            margin-bottom: 40px;
+        }
+
+        th, td {
+            border: 1px solid #222;
+            padding: 15px;
+            text-align: left;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        img {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            background: #e6e6e6; /* Thêm nền sáng để nhìn rõ đồ đen */
+            border: 1px solid #222;
+        }
+
+        .order-item-detail {
+            border-bottom: 1px solid #222;
+            padding: 5px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .order-item-detail:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="admin-nav">
+        <h1>IZUKI // CONTROL CENTER</h1>
+        <div class="nav-controls">
+            <button onclick="window.location.href='index.html'">[BACK TO HOME]</button>
+            <button onclick="logout()">[LOGOUT]</button>
+        </div>
+    </div>
+
+    <h2>SẢN PHẨM HỆ THỐNG</h2>
+    <div class="input-group">
+        <input type="text" id="name" placeholder="TÊN SẢN PHẨM">
+        <input type="text" id="price" placeholder="GIÁ (€)">
+        <select id="category" onchange="updateSubCategories()">
+            <option value="bags">BAGS</option>
+            <option value="footwear">FOOTWEAR</option>
+            <option value="collections">COLLECTIONS</option>
+        </select>
+        <select id="subCategory"></select>
+        <input type="file" id="imageInput" accept="image/*">
+        <button id="mainBtn" onclick="addProduct()">[THÊM SẢN PHẨM]</button>
+    </div>
+
+    <table id="productTable">
+        <thead>
+            <tr>
+                <th>Ảnh</th>
+                <th>Tên</th>
+                <th>Giá</th>
+                <th>Category</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <h2>DANH SÁCH ĐƠN HÀNG TỪ KHÁCH HÀNG</h2>
+    <table id="orderTable">
+        <thead>
+            <tr>
+                <th>Mã Đơn</th>
+                <th>Ngày Đặt</th>
+                <th>Khách Hàng / Địa Chỉ</th>
+                <th>Sản Phẩm Đã Đặt</th>
+                <th>Tổng Tiền</th>
+                <th>Hành Động</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        // KIỂM TRA BẢO MẬT
+        if (localStorage.getItem('admin_auth') !== 'true') {
+            window.location.href = 'login.html';
+        }
+
+        function logout() {
+            localStorage.removeItem('admin_auth');
+            window.location.href = 'login.html';
+        }
+
+        // AUTO LOAD DANH MỤC CON
+        function updateSubCategories() {
+            const cat = document.getElementById('category').value;
+            const sub = document.getElementById('subCategory');
+            const data = {
+                bags: ['TOTE', 'BACKPACKS', 'SHOULDER'],
+                footwear: ['FORMAL', 'SNEAKERS'],
+                collections: ['RESIDUAL', 'STRUCTURE', 'VOID']
+            };
+            sub.innerHTML = data[cat].map(item => `<option value="${item.toLowerCase()}">${item}</option>`).join('');
+        }
+        updateSubCategories();
+
+        // 1. THÊM SẢN PHẨM MỚI
+        function addProduct() {
+            const fileInput = document.getElementById('imageInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("VUI LÒNG CHỌN ẢNH!");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageData = e.target.result; 
+                let products = JSON.parse(localStorage.getItem('izukiProducts')) || [];
+                
+                products.push({
+                    id: Date.now(),
+                    name: document.getElementById('name').value,
+                    price: document.getElementById('price').value,
+                    image: imageData,
+                    category: document.getElementById('category').value,
+                    subCategory: document.getElementById('subCategory').value
+                });
+
+                localStorage.setItem('izukiProducts', JSON.stringify(products));
+                render();
+                clearInputs();
+            };
+            reader.readAsDataURL(file); 
+        }
+
+        // 2. CHUẨN BỊ SỬA SẢN PHẨM
+        function editProduct(id) {
+            let products = JSON.parse(localStorage.getItem('izukiProducts'));
+            const p = products.find(item => item.id === id);
+            
+            document.getElementById('name').value = p.name;
+            document.getElementById('price').value = p.price;
+            document.getElementById('category').value = p.category;
+            updateSubCategories();
+            document.getElementById('subCategory').value = p.subCategory;
+            
+            // Đổi chức năng nút bấm thành Cập Nhật
+            const btn = document.getElementById('mainBtn');
+            btn.innerText = "[CẬP NHẬT]";
+            btn.setAttribute('onclick', `updateProduct(${p.id})`);
+        }
+
+        // 3. LƯU CẬP NHẬT
+        function updateProduct(id) {
+            let products = JSON.parse(localStorage.getItem('izukiProducts'));
+            const index = products.findIndex(p => p.id === id);
+            
+            const fileInput = document.getElementById('imageInput');
+            const file = fileInput.files[0];
+            
+            // Cập nhật text
+            products[index].name = document.getElementById('name').value;
+            products[index].price = document.getElementById('price').value;
+            products[index].category = document.getElementById('category').value;
+            products[index].subCategory = document.getElementById('subCategory').value;
+
+            // Nếu có chọn ảnh mới thì cập nhật ảnh, không thì giữ nguyên ảnh cũ
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    products[index].image = e.target.result;
+                    finishUpdate(products);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                finishUpdate(products);
+            }
+        }
+
+        // KẾT THÚC CẬP NHẬT
+        function finishUpdate(products) {
+            localStorage.setItem('izukiProducts', JSON.stringify(products));
+            const btn = document.getElementById('mainBtn');
+            btn.innerText = "[THÊM SẢN PHẨM]";
+            btn.setAttribute('onclick', 'addProduct()');
+            render();
+            clearInputs();
+        }
+
+        // 4. XÓA SẢN PHẨM
+        function deleteP(id) {
+            if(confirm("XÓA SẢN PHẨM NÀY KHỎI KHO?")) {
+                let products = JSON.parse(localStorage.getItem('izukiProducts'));
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('izukiProducts', JSON.stringify(products));
+                render();
+            }
+        }
+
+        // XÓA ĐƠN HÀNG
+        function deleteOrder(orderId) {
+            if (confirm("XÓA ĐƠN HÀNG NÀY KHÔNG?")) {
+                let orders = JSON.parse(localStorage.getItem('izukiOrders')) || [];
+                orders = orders.filter(o => String(o.orderId) !== String(orderId));
+                localStorage.setItem('izukiOrders', JSON.stringify(orders));
+                render();
+            }
+        }
+
+        // RENDER GIAO DIỆN
+        function render() {
+            const products = JSON.parse(localStorage.getItem('izukiProducts')) || [];
+            document.querySelector('#productTable tbody').innerHTML = products.map(p => `
+                <tr>
+                    <td><img src="${p.image}"></td>
+                    <td>${p.name}</td>
+                    <td>€ ${p.price}</td>
+                    <td>${p.category} / ${p.subCategory}</td>
+                    <td>
+                        <button onclick="editProduct(${p.id})" style="background:#ddd; margin-right:5px;">[SỬA]</button>
+                        <button onclick="deleteP(${p.id})" style="background:#ff3b30; color:#fff;">[XÓA]</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            const orders = JSON.parse(localStorage.getItem('izukiOrders')) || [];
+            document.querySelector('#orderTable tbody').innerHTML = orders.map(o => {
+                const cusName = o.customer?.name || 'ẨN DANH';
+                const cusPhone = o.customer?.phone || 'KHÔNG CÓ';
+                const cusAddress = o.customer?.address || 'KHÔNG CÓ';
+                const cusEmail = o.customer?.email || 'GUEST';
+                const itemsList = Array.isArray(o.items) ? o.items : [];
+                
+                return `
+                    <tr>
+                        <td style="font-weight:bold; color:#fff;">${o.orderId}</td>
+                        <td>${o.date || 'KHÔNG RÕ'}</td>
+                        <td>
+                            <strong>${cusName}</strong><br>
+                            SĐT: ${cusPhone}<br>ĐC: ${cusAddress}<br>
+                            <span style="color:#555; font-size:0.7rem;">ACC: ${cusEmail}</span>
+                        </td>
+                        <td>
+                            ${itemsList.map(item => `
+                                <div class="order-item-detail">
+                                    <img src="${item.image || ''}" style="width:35px; height:35px;" onerror="this.style.display='none'">
+                                    <span>${item.name || 'SẢN PHẨM'} <strong style="color:#fff;">(x${item.quantity || 1})</strong></span>
+                                </div>
+                            `).join('')}
+                        </td>
+                        <td style="font-weight:bold; color:#fff;">€ ${o.totalPrice || '0.00'}</td>
+                        <td>
+                            <button onclick="deleteOrder('${o.orderId}')" style="background:#ff3b30; color:#fff; font-weight:bold; border:none; padding:8px 12px; cursor:pointer;">[XÓA ĐƠN]</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // XÓA TRẮNG Ô NHẬP SAU KHI THÊM/SỬA (Đã sửa lỗi)
+        function clearInputs() {
+            document.getElementById('name').value = '';
+            document.getElementById('price').value = '';
+            document.getElementById('imageInput').value = ''; // Sửa tên đúng chuẩn HTML
+        }
+
+        render();
+    </script>
+</body>
+</html>
